@@ -145,8 +145,21 @@ def compute_mean_nll(logprobs: List, weights: List) -> float:
     total_loss = 0.0
     total_weight = 0.0
     for lp, w in zip(logprobs, weights):
-        lp_arr = np.array(lp) if not isinstance(lp, np.ndarray) else lp
-        w_arr = np.array(w) if not isinstance(w, np.ndarray) else w
+        # Convert TensorData to numpy if needed
+        if hasattr(lp, 'to_numpy'):
+            lp_arr = lp.to_numpy()
+        elif isinstance(lp, np.ndarray):
+            lp_arr = lp
+        else:
+            lp_arr = np.array(lp)
+
+        if hasattr(w, 'to_numpy'):
+            w_arr = w.to_numpy()
+        elif isinstance(w, np.ndarray):
+            w_arr = w
+        else:
+            w_arr = np.array(w)
+
         total_loss += float(np.sum(-lp_arr * w_arr))
         total_weight += float(np.sum(w_arr))
     if total_weight == 0:
